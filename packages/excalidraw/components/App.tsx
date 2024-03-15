@@ -3736,25 +3736,6 @@ class App extends React.Component<AppProps, AppState> {
         });
       }
 
-      if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
-        IS_PLAIN_PASTE = event.shiftKey;
-        clearTimeout(IS_PLAIN_PASTE_TIMER);
-        // reset (100ms to be safe that we it runs after the ensuing
-        // paste event). Though, technically unnecessary to reset since we
-        // (re)set the flag before each paste event.
-        IS_PLAIN_PASTE_TIMER = window.setTimeout(() => {
-          IS_PLAIN_PASTE = false;
-        }, 100);
-      }
-
-      // prevent browser zoom in input fields
-      if (event[KEYS.CTRL_OR_CMD] && isWritableElement(event.target)) {
-        if (event.code === CODES.MINUS || event.code === CODES.EQUAL) {
-          event.preventDefault();
-          return;
-        }
-      }
-
       // bail if
       if (
         // inside an input
@@ -3956,6 +3937,14 @@ class App extends React.Component<AppProps, AppState> {
         if (event.key === KEYS.S) {
           this.setState({ openPopup: "elementStroke" });
           event.stopPropagation();
+        }
+      }
+
+      // prevent browser zoom in input fields
+      if (event[KEYS.CTRL_OR_CMD] && isWritableElement(event.target)) {
+        if (event.code === CODES.MINUS || event.code === CODES.EQUAL) {
+          event.preventDefault();
+          return;
         }
       }
 

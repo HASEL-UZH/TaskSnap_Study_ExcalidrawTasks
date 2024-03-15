@@ -21,7 +21,6 @@ import {
 import {
   getDefaultLineHeight,
   measureText,
-  normalizeText,
 } from "../element/textElement";
 import {
   ElementsMap,
@@ -551,9 +550,8 @@ export const convertToExcalidrawElements = (
         const lineHeight =
           element?.lineHeight || getDefaultLineHeight(fontFamily);
         const text = element.text ?? "";
-        const normalizedText = normalizeText(text);
         const metrics = measureText(
-          normalizedText,
+          text,
           getFontString({ fontFamily, fontSize }),
           lineHeight,
         );
