@@ -25,7 +25,6 @@ import {
   getContainerElement,
   getTextElementAngle,
   getTextWidth,
-  normalizeText,
   redrawTextBoundingBox,
   wrapText,
   getBoundTextMaxHeight,
@@ -46,6 +45,16 @@ import {
   originalContainerCache,
   updateOriginalContainerCache,
 } from "./containerCache";
+
+const normalizeText = (text: string) => {
+  return (
+    text
+      // replace tabs with spaces so they render and measure correctly
+      .replace(/\t/g, "        ")
+      // normalize newlines
+      .replace(/\r?\n|\r/g, "\n")
+  );
+};
 
 const getTransform = (
   width: number,

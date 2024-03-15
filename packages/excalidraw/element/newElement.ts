@@ -33,7 +33,6 @@ import { adjustXYWithRotation } from "../math";
 import { getResizedElementAbsoluteCoords } from "./bounds";
 import {
   measureText,
-  normalizeText,
   wrapText,
   getBoundTextMaxWidth,
   getDefaultLineHeight,
@@ -224,9 +223,8 @@ export const newTextElement = (
   const fontFamily = opts.fontFamily || DEFAULT_FONT_FAMILY;
   const fontSize = opts.fontSize || DEFAULT_FONT_SIZE;
   const lineHeight = opts.lineHeight || getDefaultLineHeight(fontFamily);
-  const text = normalizeText(opts.text);
   const metrics = measureText(
-    text,
+    opts.text,
     getFontString({ fontFamily, fontSize }),
     lineHeight,
   );
@@ -240,7 +238,7 @@ export const newTextElement = (
   const textElement = newElementWith(
     {
       ..._newElementBase<ExcalidrawTextElement>("text", opts),
-      text,
+      text: opts.text,
       fontSize,
       fontFamily,
       textAlign,
@@ -250,7 +248,7 @@ export const newTextElement = (
       width: metrics.width,
       height: metrics.height,
       containerId: opts.containerId || null,
-      originalText: text,
+      originalText: opts.text,
       lineHeight,
     },
     {},

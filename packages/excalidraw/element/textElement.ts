@@ -37,16 +37,8 @@ import {
   updateOriginalContainerCache,
 } from "./containerCache";
 
-export const normalizeText = (text: string) => {
-  return (
-    normalizeEOL(text)
-      // replace tabs with spaces so they render and measure correctly
-      .replace(/\t/g, "        ")
-  );
-};
-
 const splitIntoLines = (text: string) => {
-  return normalizeText(text).split("\n");
+  return text.split("\n");
 };
 
 export const redrawTextBoundingBox = (
