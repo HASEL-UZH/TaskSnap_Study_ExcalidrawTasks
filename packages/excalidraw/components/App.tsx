@@ -706,12 +706,6 @@ class App extends React.Component<AppProps, AppState> {
     this.actionManager.registerAction(createRedoAction(this.history));
   }
 
-  private onKeyDown = withBatchedUpdates(():null => {
-    // IS_PLAIN_PASTE
-    // IS_PLAIN_PASTE_TIMER
-    return null;
-  })
-
   private onWindowMessage(event: MessageEvent) {
     if (
       event.origin !== "https://player.vimeo.com" &&
@@ -3711,6 +3705,289 @@ class App extends React.Component<AppProps, AppState> {
     (event: MouseEvent) => {
       this.lastViewportPosition.x = event.clientX;
       this.lastViewportPosition.y = event.clientY;
+    },
+  );
+
+  // Input handling
+  private onKeyDown = withBatchedUpdates(
+    (event: React.KeyboardEvent | KeyboardEvent) => {
+      // normalize `event.key` when CapsLock is pressed #2372
+
+      if (
+        "Proxy" in window &&
+        ((!event.shiftKey && /^[A-Z]$/.test(event.key)) ||
+          (event.shiftKey && /^[a-z]$/.test(event.key)))
+      ) {
+        event = new Proxy(event, {
+          get(ev: any, prop) {
+            const value = ev[prop];
+            if (typeof value === "function") {
+              // fix for Proxies hijacking `this`
+              return value.bind(ev);
+            }
+            return prop === "key"
+              ? // CapsLock inverts capitalization based on ShiftKey, so invert
+                // it back
+                event.shiftKey
+                ? ev.key.toUpperCase()
+                : ev.key.toLowerCase()
+              : value;
+          },
+        });
+      }
+
+      if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
+        IS_PLAIN_PASTE = event.shiftKey;
+        clearTimeout(IS_PLAIN_PASTE_TIMER);
+        // reset (100ms to be safe that we it runs after the ensuing
+        // paste event). Though, technically unnecessary to reset since we
+        // (re)set the flag before each paste event.
+        IS_PLAIN_PASTE_TIMER = window.setTimeout(() => {
+          IS_PLAIN_PASTE = false;
+        }, 100);
+      }
+
+      // prevent browser zoom in input fields
+      if (event[KEYS.CTRL_OR_CMD] && isWritableElement(event.target)) {
+        if (event.code === CODES.MINUS || event.code === CODES.EQUAL) {
+          event.preventDefault();
+          return;
+        }
+      }
+
+      // bail if
+      if (
+        // inside an input
+        (isWritableElement(event.target) &&
+          // unless pressing escape (finalize action)
+          event.key !== KEYS.ESCAPE) ||
+        // or unless using arrows (to move between buttons)
+        (isArrowKey(event.key) && isInputLike(event.target))
+      ) {
+        return;
+      }
+
+      if (event.key === KEYS.QUESTION_MARK) {
+        this.setState({
+          openDialog: { name: "help" },
+        });
+        return;
+      } else if (
+        event.key.toLowerCase() === KEYS.E &&
+        event.shiftKey &&
+        event[KEYS.CTRL_OR_CMD]
+      ) {
+        event.preventDefault();
+        this.setState({ openDialog: { name: "imageExport" } });
+        return;
+      }
+
+      if (event.key === KEYS.PAGE_UP || event.key === KEYS.PAGE_DOWN) {
+        let offset =
+          (event.shiftKey ? this.state.width : this.state.height) /
+          this.state.zoom.value;
+        if (event.key === KEYS.PAGE_DOWN) {
+          offset = -offset;
+        }
+        if (event.shiftKey) {
+          this.translateCanvas((state) => ({
+            scrollX: state.scrollX + offset,
+          }));
+        } else {
+          this.translateCanvas((state) => ({
+            scrollY: state.scrollY + offset,
+          }));
+        }
+      }
+
+      if (this.actionManager.handleKeyDown(event)) {
+        return;
+      }
+
+      if (this.state.viewModeEnabled) {
+        return;
+      }
+
+      if (event[KEYS.CTRL_OR_CMD] && this.state.isBindingEnabled) {
+        this.setState({ isBindingEnabled: false });
+      }
+
+      if (isArrowKey(event.key)) {
+        const step =
+          (this.state.gridSize &&
+            (event.shiftKey
+              ? ELEMENT_TRANSLATE_AMOUNT
+              : this.state.gridSize)) ||
+          (event.shiftKey
+            ? ELEMENT_SHIFT_TRANSLATE_AMOUNT
+            : ELEMENT_TRANSLATE_AMOUNT);
+
+        let offsetX = 0;
+        let offsetY = 0;
+
+        if (event.key === KEYS.ARROW_LEFT) {
+          offsetX = -step;
+        } else if (event.key === KEYS.ARROW_RIGHT) {
+          offsetX = step;
+        } else if (event.key === KEYS.ARROW_UP) {
+          offsetY = -step;
+        } else if (event.key === KEYS.ARROW_DOWN) {
+          offsetY = step;
+        }
+
+        const selectedElements = this.scene.getSelectedElements({
+          selectedElementIds: this.state.selectedElementIds,
+          includeBoundTextElement: true,
+          includeElementsInFrames: true,
+        });
+
+        selectedElements.forEach((element) => {
+          mutateElement(element, {
+            x: element.x + offsetX,
+            y: element.y + offsetY,
+          });
+
+          updateBoundElements(element, this.scene.getNonDeletedElementsMap(), {
+            simultaneouslyUpdated: selectedElements,
+          });
+        });
+
+        this.maybeSuggestBindingForAll(selectedElements);
+
+        event.preventDefault();
+      } else if (event.key === KEYS.ENTER) {
+        const selectedElements = this.scene.getSelectedElements(this.state);
+        if (selectedElements.length === 1) {
+          const selectedElement = selectedElements[0];
+          if (event[KEYS.CTRL_OR_CMD]) {
+            if (isLinearElement(selectedElement)) {
+              if (
+                !this.state.editingLinearElement ||
+                this.state.editingLinearElement.elementId !==
+                  selectedElements[0].id
+              ) {
+                this.history.resumeRecording();
+                this.setState({
+                  editingLinearElement: new LinearElementEditor(
+                    selectedElement,
+                  ),
+                });
+              }
+            }
+          } else if (
+            isTextElement(selectedElement) ||
+            isValidTextContainer(selectedElement)
+          ) {
+            let container;
+            if (!isTextElement(selectedElement)) {
+              container = selectedElement as ExcalidrawTextContainer;
+            }
+            const midPoint = getContainerCenter(
+              selectedElement,
+              this.state,
+              this.scene.getNonDeletedElementsMap(),
+            );
+            const sceneX = midPoint.x;
+            const sceneY = midPoint.y;
+            this.startTextEditing({
+              sceneX,
+              sceneY,
+              container,
+            });
+            event.preventDefault();
+            return;
+          } else if (isFrameLikeElement(selectedElement)) {
+            this.setState({
+              editingFrame: selectedElement.id,
+            });
+          }
+        }
+      } else if (
+        !event.ctrlKey &&
+        !event.altKey &&
+        !event.metaKey &&
+        this.state.draggingElement === null
+      ) {
+        const shape = findShapeByKey(event.key);
+        if (shape) {
+          if (this.state.activeTool.type !== shape) {
+            trackEvent(
+              "toolbar",
+              shape,
+              `keyboard (${
+                this.device.editor.isMobile ? "mobile" : "desktop"
+              })`,
+            );
+          }
+          this.setActiveTool({ type: shape });
+          event.stopPropagation();
+        } else if (event.key === KEYS.Q) {
+          this.toggleLock("keyboard");
+          event.stopPropagation();
+        }
+      }
+      if (event.key === KEYS.SPACE && gesture.pointers.size === 0) {
+        isHoldingSpace = true;
+        setCursor(this.interactiveCanvas, CURSOR_TYPE.GRAB);
+        event.preventDefault();
+      }
+
+      if (
+        (event.key === KEYS.G || event.key === KEYS.S) &&
+        !event.altKey &&
+        !event[KEYS.CTRL_OR_CMD]
+      ) {
+        const selectedElements = this.scene.getSelectedElements(this.state);
+        if (
+          this.state.activeTool.type === "selection" &&
+          !selectedElements.length
+        ) {
+          return;
+        }
+
+        if (
+          event.key === KEYS.G &&
+          (hasBackground(this.state.activeTool.type) ||
+            selectedElements.some((element) => hasBackground(element.type)))
+        ) {
+          this.setState({ openPopup: "elementBackground" });
+          event.stopPropagation();
+        }
+        if (event.key === KEYS.S) {
+          this.setState({ openPopup: "elementStroke" });
+          event.stopPropagation();
+        }
+      }
+
+      if (event.key === KEYS.K && !event.altKey && !event[KEYS.CTRL_OR_CMD]) {
+        if (this.state.activeTool.type === "laser") {
+          this.setActiveTool({ type: "selection" });
+        } else {
+          this.setActiveTool({ type: "laser" });
+        }
+        return;
+      }
+
+      if (
+        event[KEYS.CTRL_OR_CMD] &&
+        (event.key === KEYS.BACKSPACE || event.key === KEYS.DELETE)
+      ) {
+        jotaiStore.set(activeConfirmDialogAtom, "clearCanvas");
+      }
+
+      // eye dropper
+      // -----------------------------------------------------------------------
+      const lowerCased = event.key.toLocaleLowerCase();
+      const isPickingStroke = lowerCased === KEYS.S && event.shiftKey;
+      const isPickingBackground =
+        event.key === KEYS.I || (lowerCased === KEYS.G && event.shiftKey);
+
+      if (isPickingStroke || isPickingBackground) {
+        this.openEyeDropper({
+          type: isPickingStroke ? "stroke" : "background",
+        });
+      }
+      // -----------------------------------------------------------------------
     },
   );
 
