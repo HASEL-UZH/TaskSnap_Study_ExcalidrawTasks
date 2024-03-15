@@ -216,8 +216,7 @@ export const isBoundToContainer = (
 export const isUsingAdaptiveRadius = (type: string) =>
   type === "rectangle" ||
   type === "embeddable" ||
-  type === "iframe" ||
-  type === "image";
+  type === "iframe";
 
 export const isUsingProportionalRadius = (type: string) =>
   type === "line" || type === "arrow" || type === "diamond";
