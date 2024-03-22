@@ -14,6 +14,11 @@ import { getCurvePathOps } from "./element/bounds";
 import { Mutable } from "./utility-types";
 import { ShapeCache } from "./scene/ShapeCache";
 
+export const getCornerRadiusBySin = (x: number, y: number) => {
+  let aspect_ratio = x/y;
+  return Math.abs(Math.sin(aspect_ratio))*100
+}
+
 export const rotate = (
   // target point to rotate
   x: number,

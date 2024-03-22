@@ -61,7 +61,7 @@ export const actionFlipVertical = register({
     };
   },
   keyTest: (event) =>
-    event.shiftKey && event.code === CODES.V,
+    event.shiftKey && event.code === CODES.V && !event.ctrlKey,
   contextItemLabel: "labels.flipVertical",
 });
 
