@@ -3311,8 +3311,7 @@ class App extends React.Component<AppProps, AppState> {
     const lines = isPlainPaste ? [text] : text.split("\n");
     const textElements = lines.reduce(
       (acc: ExcalidrawTextElement[], line, idx) => {
-        let text_base = line.trim(); 
-        const text = text_base.charAt(0).toUpperCase() + text_base.slice(1);
+        const text = line.trim();
 
         const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
         if (text.length) {
@@ -3712,15 +3711,7 @@ class App extends React.Component<AppProps, AppState> {
   // Input handling
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
-      
-      if (event.ctrlKey && event.code === CODES.V) {
-        IS_PLAIN_PASTE = event.shiftKey;
-        clearTimeout(IS_PLAIN_PASTE_TIMER);
-        IS_PLAIN_PASTE_TIMER = window.setTimeout(() => {
-          IS_PLAIN_PASTE = false;
-        }, 100);
-      }
-            
+                  
       // normalize `event.key` when CapsLock is pressed #2372
 
       if (
