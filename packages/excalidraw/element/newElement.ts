@@ -23,6 +23,7 @@ import {
   getFontString,
   getUpdatedTimestamp,
   isTestEnv,
+  normalizeEOL,
 } from "../utils";
 import { randomInteger, randomId } from "../random";
 import { bumpVersion, newElementWith } from "./mutateElement";
@@ -223,8 +224,9 @@ export const newTextElement = (
   const fontFamily = opts.fontFamily || DEFAULT_FONT_FAMILY;
   const fontSize = opts.fontSize || DEFAULT_FONT_SIZE;
   const lineHeight = opts.lineHeight || getDefaultLineHeight(fontFamily);
+  const text = normalizeEOL(opts.text);
   const metrics = measureText(
-    opts.text,
+    text,
     getFontString({ fontFamily, fontSize }),
     lineHeight,
   );
@@ -238,7 +240,7 @@ export const newTextElement = (
   const textElement = newElementWith(
     {
       ..._newElementBase<ExcalidrawTextElement>("text", opts),
-      text: opts.text,
+      text,
       fontSize,
       fontFamily,
       textAlign,
