@@ -338,8 +338,9 @@ const drawElementOnCanvas = (
         : undefined;
       if (img != null && !(img instanceof Promise)) {
         
+        //TODO: add support for roundness in images
         if (element.roundness) {
-          //create context with rounded corners
+          //Create context with rounded corners
           
           context.clip();
         }
