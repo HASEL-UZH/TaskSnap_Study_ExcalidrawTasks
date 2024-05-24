@@ -337,13 +337,6 @@ const drawElementOnCanvas = (
         ? renderConfig.imageCache.get(element.fileId)?.image
         : undefined;
       if (img != null && !(img instanceof Promise)) {
-        
-        if (element.roundness) {
-          //create context with rounded corners
-          
-          context.clip();
-        }
-
         context.drawImage(
           img,
           0 /* hardcoded for the selection box*/,
