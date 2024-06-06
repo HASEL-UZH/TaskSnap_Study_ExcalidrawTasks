@@ -497,7 +497,6 @@ const YOUTUBE_VIDEO_STATES = new Map<
 >();
 
 let IS_PLAIN_PASTE = false;
-let IS_PLAIN_PASTE_TIMER = 0;
 let PLAIN_PASTE_TOAST_SHOWN = false;
 
 let lastPointerUp: (() => void) | null = null;
@@ -3713,12 +3712,8 @@ class App extends React.Component<AppProps, AppState> {
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
       
-      if (event.ctrlKey && event.code === CODES.V) {
+      if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
         IS_PLAIN_PASTE = event.shiftKey;
-        clearTimeout(IS_PLAIN_PASTE_TIMER);
-        IS_PLAIN_PASTE_TIMER = window.setTimeout(() => {
-          IS_PLAIN_PASTE = false;
-        }, 100);
       }
             
       // normalize `event.key` when CapsLock is pressed #2372

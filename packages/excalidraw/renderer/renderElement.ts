@@ -26,7 +26,7 @@ import {
   RenderableElementsMap,
 } from "../scene/types";
 import { distance, getFontString, isRTL } from "../utils";
-import { getCornerRadiusBySin, isRightAngle } from "../math";
+import { getCornerRadius, isRightAngle } from "../math";
 import rough from "roughjs/bin/rough";
 import {
   AppState,
@@ -344,13 +344,13 @@ const drawElementOnCanvas = (
             0,
             element.width,
             element.height,
-            getCornerRadiusBySin(element.width, element.height),
+            getCornerRadius(Math.min(element.width, element.height), element),
           );
           context.clip();
         }
         context.drawImage(
           img,
-          0 /* hardcoded for the selection box*/,
+          0,
           0,
           element.width,
           element.height,
