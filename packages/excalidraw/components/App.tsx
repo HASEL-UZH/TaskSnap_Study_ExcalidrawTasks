@@ -3712,7 +3712,8 @@ class App extends React.Component<AppProps, AppState> {
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
                   
-      // normalize `event.key` when CapsLock is pressed #2372
+      //TODO: Add logic to check if the paste shortcuts are pressed
+      
 
       if (
         "Proxy" in window &&
