@@ -776,7 +776,6 @@ const _renderInteractiveScene = ({
       };
 
       for (const groupId of getSelectedGroupIds(appState)) {
-        // TODO: support multiplayer selected group IDs
         addSelectionForGroupId(groupId);
       }
 

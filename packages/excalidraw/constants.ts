@@ -146,7 +146,7 @@ export const DEFAULT_TRANSFORM_HANDLE_SPACING = 2;
 
 export const CANVAS_ONLY_ACTIONS = ["selectAll"];
 
-export const GRID_SIZE = 20; // TODO make it configurable?
+export const GRID_SIZE = 20;
 
 export const IMAGE_MIME_TYPES = {
   svg: "image/svg+xml",

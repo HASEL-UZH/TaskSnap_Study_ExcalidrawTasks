@@ -2995,7 +2995,7 @@ class App extends React.Component<AppProps, AppState> {
               )
             : data.elements
         ) as readonly ExcalidrawElement[];
-        // TODO remove formatting from elements if isPlainPaste
+        
         this.addElementsFromPasteOrLibrary({
           elements,
           files: data.files || null,
@@ -3191,8 +3191,6 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  // TODO rewrite this to paste both text & images at the same time if
-  // pasted data contains both
   private async addElementsFromMixedContentPaste(
     mixedContent: PastedMixedContent,
     {
@@ -3712,8 +3710,10 @@ class App extends React.Component<AppProps, AppState> {
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
                   
-      //TODO: Add logic to define the variable IS_PLAIN_PASTE when the paste shortcuts are pressed
-      
+      // paste shortcut
+      if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
+        IS_PLAIN_PASTE = true;
+      }
 
       // -----------------------------------------------------------------------
 
@@ -9209,9 +9209,6 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     this.setState({
-      // TODO: rename this state field to "isScaling" to distinguish
-      // it from the generic "isResizing" which includes scaling and
-      // rotating
       isResizing: transformHandleType && transformHandleType !== "rotation",
       isRotating: transformHandleType === "rotation",
       activeEmbeddable: null,
