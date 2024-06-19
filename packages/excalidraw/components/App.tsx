@@ -496,8 +496,6 @@ const YOUTUBE_VIDEO_STATES = new Map<
   ValueOf<typeof YOUTUBE_STATES>
 >();
 
-let IS_PLAIN_PASTE = false;
-let IS_PLAIN_PASTE_TIMER = 0;
 let PLAIN_PASTE_TOAST_SHOWN = false;
 
 let lastPointerUp: (() => void) | null = null;
@@ -3302,87 +3300,6 @@ class App extends React.Component<AppProps, AppState> {
       verticalAlign: DEFAULT_VERTICAL_ALIGN,
       locked: false,
     };
-
-    const LINE_GAP = 10;
-    let currentY = y;
-
-    const lines = isPlainPaste ? [text] : text.split("\n");
-    const textElements = lines.reduce(
-      (acc: ExcalidrawTextElement[], line, idx) => {
-        const text = line.trim();
-
-        const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
-        if (text.length) {
-          const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
-            x,
-            y: currentY,
-          });
-
-          const element = newTextElement({
-            ...textElementProps,
-            x,
-            y: currentY,
-            text,
-            lineHeight,
-            frameId: topLayerFrame ? topLayerFrame.id : null,
-          });
-          acc.push(element);
-          currentY += element.height + LINE_GAP;
-        } else {
-          const prevLine = lines[idx - 1]?.trim();
-          // add paragraph only if previous line was not empty, IOW don't add
-          // more than one empty line
-          if (prevLine) {
-            currentY +=
-              getLineHeightInPx(textElementProps.fontSize, lineHeight) +
-              LINE_GAP;
-          }
-        }
-
-        return acc;
-      },
-      [],
-    );
-
-    if (textElements.length === 0) {
-      return;
-    }
-
-    const frameId = textElements[0].frameId;
-
-    if (frameId) {
-      this.scene.insertElementsAtIndex(
-        textElements,
-        this.scene.getElementIndex(frameId),
-      );
-    } else {
-      this.scene.replaceAllElements([
-        ...this.scene.getElementsIncludingDeleted(),
-        ...textElements,
-      ]);
-    }
-
-    this.setState({
-      selectedElementIds: makeNextSelectedElementIds(
-        Object.fromEntries(textElements.map((el) => [el.id, true])),
-        this.state,
-      ),
-    });
-
-    if (
-      !isPlainPaste &&
-      textElements.length > 1 &&
-      PLAIN_PASTE_TOAST_SHOWN === false &&
-      !this.device.editor.isMobile
-    ) {
-      this.setToast({
-        message: t("toast.pasteAsSingleElement", {
-          shortcut: getShortcutKey("CtrlOrCmd+Shift+V"),
-        }),
-        duration: 5000,
-      });
-      PLAIN_PASTE_TOAST_SHOWN = true;
-    }
 
     this.history.resumeRecording();
   }
