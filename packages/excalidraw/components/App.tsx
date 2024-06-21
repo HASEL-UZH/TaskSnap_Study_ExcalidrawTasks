@@ -3311,20 +3311,6 @@ class App extends React.Component<AppProps, AppState> {
       (acc: ExcalidrawTextElement[], line, idx) => {
         let text = line.trim();
 
-        let n = -1;
-        for (var i = 0; i < text.length;i++){
-          if (text.charAt(i).match("^[a-zA-z*]")){
-            n = i;
-            console.log("corre",n);
-            break;
-          }
-        }
-
-        if (n > -1){
-          const um = text.charAt(n).toUpperCase();
-          text = text.substring(0,n) + um + text.substring(n+1)
-        } 
-
         const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
         if (text.length) {
           const topLayerFrame = this.getTopLayerFrameAtSceneCoords({
