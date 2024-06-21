@@ -497,6 +497,7 @@ const YOUTUBE_VIDEO_STATES = new Map<
 >();
 
 let IS_PLAIN_PASTE = false;
+let IS_PLAIN_PASTE_TIMER = 0;
 let PLAIN_PASTE_TOAST_SHOWN = false;
 
 let lastPointerUp: (() => void) | null = null;
@@ -3308,7 +3309,21 @@ class App extends React.Component<AppProps, AppState> {
     const lines = isPlainPaste ? [text] : text.split("\n");
     const textElements = lines.reduce(
       (acc: ExcalidrawTextElement[], line, idx) => {
-        const text = line.trim();
+        let text = line.trim();
+
+        let n = -1;
+        for (var i = 0; i < text.length;i++){
+          if (text.charAt(i).match("^[a-zA-z*]")){
+            n = i;
+            console.log("corre",n);
+            break;
+          }
+        }
+
+        if (n > -1){
+          const um = text.charAt(n).toUpperCase();
+          text = text.substring(0,n) + um + text.substring(n+1)
+        } 
 
         const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
         if (text.length) {
@@ -3711,7 +3726,14 @@ class App extends React.Component<AppProps, AppState> {
                   
       // paste shortcut
       if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
-        IS_PLAIN_PASTE = true;
+        IS_PLAIN_PASTE = event.shiftKey;
+        clearTimeout(IS_PLAIN_PASTE_TIMER);
+        // reset (100ms to be safe that we it runs after the ensuing
+        // paste event). Though, technically unnecessary to reset since we
+        // (re)set the flag before each paste event.
+        IS_PLAIN_PASTE_TIMER = window.setTimeout(() => {
+          IS_PLAIN_PASTE = false;
+        }, 100);
       }
 
       // -----------------------------------------------------------------------
