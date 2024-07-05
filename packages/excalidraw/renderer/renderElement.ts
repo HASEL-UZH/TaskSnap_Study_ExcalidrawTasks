@@ -315,7 +315,6 @@ const drawElementOnCanvas = (
       break;
     }
     case "freedraw": {
-      // Draw directly to canvas
       context.save();
       context.fillStyle = element.strokeColor;
 
@@ -337,6 +336,7 @@ const drawElementOnCanvas = (
         ? renderConfig.imageCache.get(element.fileId)?.image
         : undefined;
       if (img != null && !(img instanceof Promise)) {
+<<<<<<< HEAD
         if (element.roundness && context.roundRect) {
           context.beginPath();
           context.roundRect(
@@ -346,6 +346,14 @@ const drawElementOnCanvas = (
             element.height,
             getCornerRadius(Math.min(element.width, element.height), element),
           );
+=======
+        
+        //TODO: add support for roundness in images
+        if (element.roundness && context.roundRect) {
+          //draw a rectangle with rounded corners
+          
+         
+>>>>>>> 4eb329ffb82d9f1a681518236777ee38487ff10e
           context.clip();
         }
         context.drawImage(
@@ -365,9 +373,7 @@ const drawElementOnCanvas = (
         const rtl = isRTL(element.text);
         const shouldTemporarilyAttach = rtl && !context.canvas.isConnected;
         if (shouldTemporarilyAttach) {
-          // to correctly render RTL text mixed with LTR, we have to append it
-          // to the DOM
-          document.body.appendChild(context.canvas);
+         document.body.appendChild(context.canvas);
         }
         context.canvas.setAttribute("dir", rtl ? "rtl" : "ltr");
         context.save();
@@ -375,7 +381,6 @@ const drawElementOnCanvas = (
         context.fillStyle = element.strokeColor;
         context.textAlign = element.textAlign as CanvasTextAlign;
 
-        // Canvas does not support multiline text by default
         const lines = element.text.replace(/\r\n?/g, "\n").split("\n");
 
         const horizontalOffset =
@@ -471,7 +476,6 @@ const drawElementFromCanvas = (
   const zoom = elementWithCanvas.scale;
   let [x1, y1, x2, y2] = getElementAbsoluteCoords(element, allElementsMap);
 
-  // Free draw elements will otherwise "shuffle" as the min x and y change
   if (isFreeDrawElement(element)) {
     x1 = Math.floor(x1);
     x2 = Math.ceil(x2);
@@ -491,8 +495,6 @@ const drawElementFromCanvas = (
     const tempCanvas = document.createElement("canvas");
     const tempCanvasContext = tempCanvas.getContext("2d")!;
 
-    // Take max dimensions of arrow canvas so that when canvas is rotated
-    // the arrow doesn't get clipped
     const maxDim = Math.max(distance(x1, x2), distance(y1, y2));
     tempCanvas.width =
       maxDim * window.devicePixelRatio * zoom +
@@ -534,7 +536,7 @@ const drawElementFromCanvas = (
       offsetY -
       padding * zoom;
     tempCanvasContext.translate(-shiftX, -shiftY);
-    // Clear the bound text area
+    
     tempCanvasContext.clearRect(
       -(boundTextElement.width / 2 + BOUND_TEXT_PADDING) *
         window.devicePixelRatio *
@@ -624,8 +626,7 @@ export const renderSelectionElement = (
 
   // render from 0.5px offset  to get 1px wide line
   // https://stackoverflow.com/questions/7530593/html5-canvas-and-line-width/7531540#7531540
-  // TODO can be be improved by offseting to the negative when user selects
-  // from right to left
+
   const offset = 0.5 / appState.zoom.value;
 
   context.fillRect(offset, offset, element.width, element.height);
@@ -665,7 +666,6 @@ export const renderElement = (
         context.lineWidth = FRAME_STYLE.strokeWidth / appState.zoom.value;
         context.strokeStyle = FRAME_STYLE.strokeColor;
 
-        // TODO change later to only affect AI frames
         if (isMagicFrameElement(element)) {
           context.strokeStyle =
             appState.theme === "light" ? "#7affd7" : "#1d8264";
@@ -691,10 +691,7 @@ export const renderElement = (
       break;
     }
     case "freedraw": {
-      // TODO investigate if we can do this in situ. Right now we need to call
-      // beforehand because math helpers (such as getElementAbsoluteCoords)
-      // rely on existing shapes
-      ShapeCache.generateElementShape(element, null);
+       ShapeCache.generateElementShape(element, null);
 
       if (renderConfig.isExporting) {
         const [x1, y1, x2, y2] = getElementAbsoluteCoords(element, elementsMap);
@@ -735,9 +732,6 @@ export const renderElement = (
     case "text":
     case "iframe":
     case "embeddable": {
-      // TODO investigate if we can do this in situ. Right now we need to call
-      // beforehand because math helpers (such as getElementAbsoluteCoords)
-      // rely on existing shapes
       ShapeCache.generateElementShape(element, renderConfig);
       if (renderConfig.isExporting) {
         const [x1, y1, x2, y2] = getElementAbsoluteCoords(element, elementsMap);

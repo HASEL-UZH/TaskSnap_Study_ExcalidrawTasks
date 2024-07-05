@@ -2994,7 +2994,7 @@ class App extends React.Component<AppProps, AppState> {
               )
             : data.elements
         ) as readonly ExcalidrawElement[];
-        // TODO remove formatting from elements if isPlainPaste
+        
         this.addElementsFromPasteOrLibrary({
           elements,
           files: data.files || null,
@@ -3190,8 +3190,6 @@ class App extends React.Component<AppProps, AppState> {
     }
   };
 
-  // TODO rewrite this to paste both text & images at the same time if
-  // pasted data contains both
   private async addElementsFromMixedContentPaste(
     mixedContent: PastedMixedContent,
     {
@@ -3310,8 +3308,12 @@ class App extends React.Component<AppProps, AppState> {
     const lines = isPlainPaste ? [text] : text.split("\n");
     const textElements = lines.reduce(
       (acc: ExcalidrawTextElement[], line, idx) => {
+<<<<<<< HEAD
         let text_base = line.trim(); 
         const text = text_base.charAt(0).toUpperCase() + text_base.slice(1);
+=======
+        let text = line.trim();
+>>>>>>> 4eb329ffb82d9f1a681518236777ee38487ff10e
 
         const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
         if (text.length) {
@@ -3711,12 +3713,29 @@ class App extends React.Component<AppProps, AppState> {
   // Input handling
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
+<<<<<<< HEAD
       
       if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
         IS_PLAIN_PASTE = event.shiftKey;
       }
             
       // normalize `event.key` when CapsLock is pressed #2372
+=======
+                  
+      // paste shortcut
+      if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
+        IS_PLAIN_PASTE = event.shiftKey;
+        clearTimeout(IS_PLAIN_PASTE_TIMER);
+        // reset (100ms to be safe that we it runs after the ensuing
+        // paste event). Though, technically unnecessary to reset since we
+        // (re)set the flag before each paste event.
+        IS_PLAIN_PASTE_TIMER = window.setTimeout(() => {
+          IS_PLAIN_PASTE = false;
+        }, 100);
+      }
+
+      // -----------------------------------------------------------------------
+>>>>>>> 4eb329ffb82d9f1a681518236777ee38487ff10e
 
       if (
         "Proxy" in window &&
@@ -3727,12 +3746,10 @@ class App extends React.Component<AppProps, AppState> {
           get(ev: any, prop) {
             const value = ev[prop];
             if (typeof value === "function") {
-              // fix for Proxies hijacking `this`
               return value.bind(ev);
             }
             return prop === "key"
-              ? // CapsLock inverts capitalization based on ShiftKey, so invert
-                // it back
+              ? 
                 event.shiftKey
                 ? ev.key.toUpperCase()
                 : ev.key.toLowerCase()
@@ -3741,13 +3758,11 @@ class App extends React.Component<AppProps, AppState> {
         });
       }
 
-      // bail if
+      // -----------------------------------------------------------------------
+
       if (
-        // inside an input
         (isWritableElement(event.target) &&
-          // unless pressing escape (finalize action)
           event.key !== KEYS.ESCAPE) ||
-        // or unless using arrows (to move between buttons)
         (isArrowKey(event.key) && isInputLike(event.target))
       ) {
         return;
@@ -3768,6 +3783,8 @@ class App extends React.Component<AppProps, AppState> {
         return;
       }
 
+      // -----------------------------------------------------------------------
+
       if (event.key === KEYS.PAGE_UP || event.key === KEYS.PAGE_DOWN) {
         let offset =
           (event.shiftKey ? this.state.width : this.state.height) /
@@ -3785,6 +3802,8 @@ class App extends React.Component<AppProps, AppState> {
           }));
         }
       }
+
+      // -----------------------------------------------------------------------
 
       if (this.actionManager.handleKeyDown(event)) {
         return;
@@ -3820,6 +3839,8 @@ class App extends React.Component<AppProps, AppState> {
         } else if (event.key === KEYS.ARROW_DOWN) {
           offsetY = step;
         }
+
+        // -----------------------------------------------------------------------
 
         const selectedElements = this.scene.getSelectedElements({
           selectedElementIds: this.state.selectedElementIds,
@@ -3912,6 +3933,9 @@ class App extends React.Component<AppProps, AppState> {
           event.stopPropagation();
         }
       }
+
+      // -----------------------------------------------------------------------
+
       if (event.key === KEYS.SPACE && gesture.pointers.size === 0) {
         isHoldingSpace = true;
         setCursor(this.interactiveCanvas, CURSOR_TYPE.GRAB);
@@ -9205,9 +9229,6 @@ class App extends React.Component<AppProps, AppState> {
     }
 
     this.setState({
-      // TODO: rename this state field to "isScaling" to distinguish
-      // it from the generic "isResizing" which includes scaling and
-      // rotating
       isResizing: transformHandleType && transformHandleType !== "rotation",
       isRotating: transformHandleType === "rotation",
       activeEmbeddable: null,

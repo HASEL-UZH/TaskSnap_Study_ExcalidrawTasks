@@ -5,6 +5,7 @@ import {
 } from "../element/types";
 import { ElementOrToolType } from "../types";
 
+
 export const hasBackground = (type: ElementOrToolType) =>
   type === "rectangle" ||
   type === "iframe" ||
@@ -45,6 +46,8 @@ export const canChangeRoundness = (type: ElementOrToolType) =>
   type === "diamond" ||
   type === "image";
 
+
+  
 export const canHaveArrowheads = (type: ElementOrToolType) => type === "arrow";
 
 export const getElementAtPosition = (
