@@ -336,26 +336,14 @@ const drawElementOnCanvas = (
         ? renderConfig.imageCache.get(element.fileId)?.image
         : undefined;
       if (img != null && !(img instanceof Promise)) {
-<<<<<<< HEAD
-        if (element.roundness && context.roundRect) {
-          context.beginPath();
-          context.roundRect(
-            0,
-            0,
-            element.width,
-            element.height,
-            getCornerRadius(Math.min(element.width, element.height), element),
-          );
-=======
         
         //TODO: add support for roundness in images
         if (element.roundness && context.roundRect) {
-          //draw a rectangle with rounded corners
-          
+          //Use the context to draw a rectangle with rounded corners
          
->>>>>>> 4eb329ffb82d9f1a681518236777ee38487ff10e
           context.clip();
         }
+
         context.drawImage(
           img,
           0,
