@@ -26,7 +26,7 @@ import {
   RenderableElementsMap,
 } from "../scene/types";
 import { distance, getFontString, isRTL } from "../utils";
-import { getCornerRadius, isRightAngle } from "../math";
+import { isRightAngle } from "../math";
 import rough from "roughjs/bin/rough";
 import {
   AppState,
@@ -336,21 +336,7 @@ const drawElementOnCanvas = (
         ? renderConfig.imageCache.get(element.fileId)?.image
         : undefined;
       if (img != null && !(img instanceof Promise)) {
-        
-        // Add support for roundness in images
-        if (element.roundness && context.roundRect) {
-          //TODO: Use the context to draw a rectangle with rounded corners
-         
-          context.clip();
-        }
-
-        context.drawImage(
-          img,
-          0,
-          0,
-          element.width,
-          element.height,
-        );
+        context.drawImage(img,0,0,element.width,element.height);
       } else {
         drawImagePlaceholder(element, context, appState.zoom.value);
       }
