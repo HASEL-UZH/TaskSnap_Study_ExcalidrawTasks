@@ -498,6 +498,7 @@ const YOUTUBE_VIDEO_STATES = new Map<
 
 let IS_PLAIN_PASTE = false;
 let PLAIN_PASTE_TOAST_SHOWN = false;
+let IS_PLAIN_PASTE_TIMER = 0;
 
 let lastPointerUp: (() => void) | null = null;
 const gesture: Gesture = {
@@ -3305,15 +3306,15 @@ class App extends React.Component<AppProps, AppState> {
     const LINE_GAP = 10;
     let currentY = y;
 
+    // Improve separated text elements paste-behavior:
+
     const lines = isPlainPaste ? [text] : text.split("\n");
+    
     const textElements = lines.reduce(
       (acc: ExcalidrawTextElement[], line, idx) => {
-<<<<<<< HEAD
-        let text_base = line.trim(); 
-        const text = text_base.charAt(0).toUpperCase() + text_base.slice(1);
-=======
         let text = line.trim();
->>>>>>> 4eb329ffb82d9f1a681518236777ee38487ff10e
+
+        // TODO: Capitalize the first character if it is a letter.
 
         const lineHeight = getDefaultLineHeight(textElementProps.fontFamily);
         if (text.length) {
@@ -3713,14 +3714,6 @@ class App extends React.Component<AppProps, AppState> {
   // Input handling
   private onKeyDown = withBatchedUpdates(
     (event: React.KeyboardEvent | KeyboardEvent) => {
-<<<<<<< HEAD
-      
-      if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
-        IS_PLAIN_PASTE = event.shiftKey;
-      }
-            
-      // normalize `event.key` when CapsLock is pressed #2372
-=======
                   
       // paste shortcut
       if (event[KEYS.CTRL_OR_CMD] && event.key.toLowerCase() === KEYS.V) {
@@ -3733,9 +3726,6 @@ class App extends React.Component<AppProps, AppState> {
           IS_PLAIN_PASTE = false;
         }, 100);
       }
-
-      // -----------------------------------------------------------------------
->>>>>>> 4eb329ffb82d9f1a681518236777ee38487ff10e
 
       if (
         "Proxy" in window &&
