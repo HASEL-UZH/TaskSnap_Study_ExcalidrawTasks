@@ -41,6 +41,7 @@ export const actionFlipHorizontal = register({
   contextItemLabel: "labels.flipHorizontal",
 });
 
+//TODO: Resolve the shortcut conflict for plain text paste
 export const actionFlipVertical = register({
   name: "flipVertical",
   trackEvent: { category: "element" },
