@@ -26,7 +26,7 @@ import {
   RenderableElementsMap,
 } from "../scene/types";
 import { distance, getFontString, isRTL } from "../utils";
-import { getCornerRadius, isRightAngle } from "../math";
+import { isRightAngle } from "../math";
 import rough from "roughjs/bin/rough";
 import {
   AppState,
@@ -340,8 +340,7 @@ const drawElementOnCanvas = (
         // Add support for roundness in images
         if (element.roundness && context.roundRect) {
           //TODO: Use the context to draw a rectangle with rounded corners
-          context.beginPath();
-          context.roundRect(0,0,element.width,element.height,getCornerRadius(Math.min(element.width, element.height), element));
+         
           context.clip();
         }
 

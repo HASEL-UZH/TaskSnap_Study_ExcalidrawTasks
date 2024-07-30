@@ -1,7 +1,7 @@
 {
   "labels": {
-    "sharp":"Pointu",
-    "round":"Rond",
+    "sharp":"",
+    "round":"",
     "paste": "Coller",
     "pasteAsPlaintext": "Coller comme texte brut",
     "pasteCharts": "Coller les graphiques",
