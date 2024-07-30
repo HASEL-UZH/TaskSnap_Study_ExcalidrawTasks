@@ -38,7 +38,6 @@ export const hasStrokeStyle = (type: ElementOrToolType) =>
   type === "line";
 
 export const canChangeRoundness = (type: ElementOrToolType) =>
-  type == "image" ||
   type === "rectangle" ||
   type === "iframe" ||
   type === "embeddable" ||
